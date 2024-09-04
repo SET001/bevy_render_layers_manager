@@ -1,0 +1,10 @@
+[package]
+name = "bevy_rander_layer_manager"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = { version = "0.14", default-features = false, features=["bevy_render"]}
+[dev-dependencies]
+rstest = "0.22.0"
+rstest_reuse = "0.7.0"
