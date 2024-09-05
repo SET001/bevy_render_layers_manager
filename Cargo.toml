@@ -2,6 +2,13 @@
 name = "bevy_rander_layer_manager"
 version = "0.1.0"
 edition = "2021"
+authors = ["SET001 <settydark@gmail.com>"]
+categories = ["game-development"]
+description = "Manager for Bevy RenderLayers"
+exclude = ["examples"]
+keywords = ["bevy", "RenderLayers", "manager"]
+readme = "README.md"
+repository = "https://github.com/SET001/bevy_render_layers_manager"
 
 [dependencies]
 bevy = { version = "0.14", default-features = false, features=["bevy_render"]}
