@@ -2,6 +2,10 @@
 
 # `bevy_render_layers_manager`
 A [Bevy](https://github.com/bevyengine/bevy) plugin to manage [RenderLayers](https://docs.rs/bevy/latest/bevy/render/view/struct.RenderLayers.html) in app.
+
+[![crates.io](https://img.shields.io/crates/v/bevy_render_layers_manager)](https://crates.io/crates/bevy_render_layers_manager)
+[![crates.io](https://img.shields.io/crates/d/bevy_render_layers_manager)](https://crates.io/crates/bevy_render_layers_manager)
+[![Bevy tracking](https://img.shields.io/badge/Bevy%20tracking-released%20version-lightblue)](https://github.com/bevyengine/bevy/blob/main/docs/plugins_guidelines.md#main-branch-tracking)
 </div>
 
 This plugin tracks usage of [RenderLayers](https://docs.rs/bevy/latest/bevy/render/view/struct.RenderLayers.html) in app and provide method to get first free layer for your needs.
