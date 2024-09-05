@@ -10,7 +10,7 @@ fn pick_multiple_layers(mut empty_app: App) {
   let range = 1..=10;
   let layers = range
     .clone()
-    .map(|_| manager.pick().clone())
+    .map(|_| manager.pick())
     .collect::<Vec<usize>>();
   layers.iter().for_each(|layer| {
     world.spawn(RenderLayers::layer(*layer));

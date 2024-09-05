@@ -40,7 +40,7 @@ fn when_inserting(entities_layers: Vec<Vec<usize>>, expect: usize) {
       .world_mut()
       .get_entity_mut(*entity)
       .unwrap()
-      .insert(RenderLayers::from_layers(&layers));
+      .insert(RenderLayers::from_layers(layers));
   });
   let manager = app.world_mut().resource_mut::<RenderLayerManager>();
   assert_eq!(manager.free_layer, expect);
