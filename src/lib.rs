@@ -2,61 +2,65 @@ use bevy::{
   app::{Plugin, Update},
   prelude::*,
   render::view::RenderLayers,
-  utils::HashSet,
+  utils::HashMap,
 };
 #[cfg(test)]
 mod spec;
 
 #[derive(Resource)]
 pub struct RenderLayerManager {
-  used_layers: HashSet<usize>,
+  used_layers: HashMap<usize, usize>,
   free_layer: usize,
 }
 
 impl RenderLayerManager {
   //	Return nearest (to zero) free render layer
-  pub fn get(&self) -> RenderLayers {
-    RenderLayers::none().with(self.free_layer)
+  pub fn get(&self) -> usize {
+    self.free_layer
   }
 
   //	Return nearest (to zero) free render layer and mark it as used
-  pub fn pick(&mut self) -> RenderLayers {
-    let layers = RenderLayers::none().with(self.free_layer);
-    self.add(&layers);
-    layers
+  pub fn pick(&mut self) -> usize {
+    self.add(self.free_layer);
+    self.free_layer
   }
 
-  //	Mark render layers as used
-  pub fn add(&mut self, layers: &RenderLayers) {
-    layers.iter().for_each(|layer| {
-      if layer > 0 && !self.used_layers.contains(&layer) {
-        self.used_layers.insert(layer);
-        if layer == self.free_layer {
-          while self.used_layers.contains(&self.free_layer) {
-            self.free_layer += 1;
-          }
-        }
+  //	Mark render layer as used
+  fn add(&mut self, layer: usize) {
+    match self.used_layers.get_mut(&layer) {
+      Some(num) => {
+        *num += 1;
       }
-    });
+      None => {
+        self.used_layers.insert(layer, 1);
+      }
+    };
+    if layer == self.free_layer {
+      while self.used_layers.get(&self.free_layer).is_some() {
+        self.free_layer += 1;
+      }
+    }
   }
 
-  //	Unmark render layers as used
-  pub fn remove(&mut self, layers: &RenderLayers) {
-    layers.iter().for_each(|layer| {
-      if layer > 0 {
+  //	Unmark render layer as used
+  fn remove(&mut self, layer: usize) {
+    if let Some(num) = self.used_layers.get_mut(&layer) {
+      if *num == 1 && layer != 0 {
         self.used_layers.remove(&layer);
         if layer < self.free_layer {
           self.free_layer = layer;
         }
+      } else {
+        *num -= 1;
       }
-    });
+    }
   }
 }
 
 impl Default for RenderLayerManager {
   fn default() -> Self {
     Self {
-      used_layers: HashSet::from([0]),
+      used_layers: HashMap::from([(0, 0)]),
       free_layer: 1,
     }
   }
@@ -67,18 +71,11 @@ fn on_add(
   q_render_layers: Query<&RenderLayers>,
   mut layers_manager: ResMut<RenderLayerManager>,
 ) {
-  let layers = q_render_layers.get(trigger.entity()).unwrap();
-  layers_manager.add(layers);
-}
-
-fn on_insert(
-  trigger: Trigger<OnInsert, RenderLayers>,
-  q_render_layers: Query<&RenderLayers>,
-  mut layers_manager: ResMut<RenderLayerManager>,
-) {
-  println!("on_insert");
-  let layers = q_render_layers.get(trigger.entity()).unwrap();
-  layers_manager.add(layers);
+  q_render_layers
+    .get(trigger.entity())
+    .unwrap()
+    .iter()
+    .for_each(|layer| layers_manager.add(layer));
 }
 
 fn on_remove(
@@ -86,23 +83,11 @@ fn on_remove(
   q_render_layers: Query<&RenderLayers>,
   mut layers_manager: ResMut<RenderLayerManager>,
 ) {
-  println!("on remove");
-  let all_render_layers = q_render_layers.iter().collect::<Vec<&RenderLayers>>();
   q_render_layers
     .get(trigger.entity())
     .unwrap()
     .iter()
-    .for_each(|layer| {
-      let layer = &RenderLayers::none().with(layer);
-      if all_render_layers
-        .iter()
-        .filter(|render_layers| render_layers.intersects(layer))
-        .count()
-        < 2
-      {
-        layers_manager.remove(layer);
-      }
-    });
+    .for_each(|layer| layers_manager.remove(layer));
 }
 
 #[derive(Component, Debug)]
@@ -110,18 +95,25 @@ pub struct Old<T: Component>(T);
 
 fn on_update(
   mut commands: Commands,
-  query: Query<(Entity, &RenderLayers, Option<&Old<RenderLayers>>), Changed<RenderLayers>>,
+  query: Query<(Entity, Ref<RenderLayers>, Option<&Old<RenderLayers>>)>,
+  mut layers_manager: ResMut<RenderLayerManager>,
 ) {
   for (entity, layers, maybe_old) in query.iter() {
-    println!("on_update");
-    if let Some(old) = maybe_old {
-      println!("render layers changed from {:?} to {:?}", old, layers);
+    if layers.is_changed() {
+      if let Some(old) = maybe_old {
+        let union = layers.union(&old.0);
+
+        union
+          .symmetric_difference(&layers)
+          .iter()
+          .for_each(|layer| layers_manager.remove(layer));
+        union
+          .symmetric_difference(&old.0)
+          .iter()
+          .for_each(|layer| layers_manager.add(layer));
+      }
     }
     commands.entity(entity).insert(Old(layers.clone()));
-    commands
-      .entity(entity)
-      .insert(RenderLayers::from(layers.clone()));
-    commands.entity(entity).remove::<RenderLayers>();
   }
 }
 
@@ -131,7 +123,6 @@ impl Plugin for RenderLayersManagerPlugin {
     app
       .init_resource::<RenderLayerManager>()
       .add_systems(Update, on_update)
-      // .observe(on_insert)
       .observe(on_add)
       .observe(on_remove);
   }

@@ -5,7 +5,7 @@ use crate::{RenderLayerManager, RenderLayersManagerPlugin};
 
 pub mod on_add;
 pub mod on_remove;
-// pub mod on_update;
+pub mod on_update;
 
 #[rstest]
 fn init_value(app: App) {

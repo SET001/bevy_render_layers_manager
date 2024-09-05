@@ -29,7 +29,6 @@ fn when_component_removed(input: (App, Vec<Entity>), to_remove: usize, expect: u
     .world_mut()
     .entity_mut(*entities.get(to_remove).unwrap())
     .remove::<RenderLayers>();
-  app.update();
   let manager = app.world().resource::<RenderLayerManager>();
   assert_eq!(manager.free_layer, expect);
 }
@@ -41,7 +40,6 @@ fn when_entity_despawned(input: (App, Vec<Entity>), to_remove: usize, expect: us
     .world_mut()
     .entity_mut(*entities.get(to_remove).unwrap())
     .despawn_recursive();
-  app.update();
   let manager = app.world().resource::<RenderLayerManager>();
   assert_eq!(manager.free_layer, expect);
 }
