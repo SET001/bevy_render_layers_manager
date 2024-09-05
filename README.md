@@ -6,9 +6,11 @@ A [Bevy](https://github.com/bevyengine/bevy) plugin to manage [RenderLayers](htt
 
 This plugin tracks usage of [RenderLayers](https://docs.rs/bevy/latest/bevy/render/view/struct.RenderLayers.html) in app and provide method to get first free layer for your needs.
 
-## Usage?
+## Usage
 
 Add `RenderLayersManagerPlugin` in your app. This plugin adds `RenderLayerManager` resource with `.get` method to get first free layer.
+
+You can also use `.pick` method that will return free layer and mark it as used.
 
 ## Example
 

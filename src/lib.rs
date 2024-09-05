@@ -21,25 +21,26 @@ impl RenderLayerManager {
 
   //	Return nearest (to zero) free render layer and mark it as used
   pub fn pick(&mut self) -> usize {
-    self.add(self.free_layer);
-    self.free_layer
+    let free_layer = self.free_layer;
+    self.add(self.free_layer, 0);
+    free_layer
   }
 
   //	Mark render layer as used
-  fn add(&mut self, layer: usize) {
+  fn add(&mut self, layer: usize, init_num: usize) {
     match self.used_layers.get_mut(&layer) {
       Some(num) => {
         *num += 1;
       }
       None => {
-        self.used_layers.insert(layer, 1);
+        self.used_layers.insert(layer, init_num);
+        if layer == self.free_layer {
+          while self.used_layers.get(&self.free_layer).is_some() {
+            self.free_layer += 1;
+          }
+        }
       }
     };
-    if layer == self.free_layer {
-      while self.used_layers.get(&self.free_layer).is_some() {
-        self.free_layer += 1;
-      }
-    }
   }
 
   //	Unmark render layer as used
@@ -75,7 +76,7 @@ fn on_add(
     .get(trigger.entity())
     .unwrap()
     .iter()
-    .for_each(|layer| layers_manager.add(layer));
+    .for_each(|layer| layers_manager.add(layer, 1));
 }
 
 fn on_remove(
@@ -110,7 +111,7 @@ fn on_update(
         union
           .symmetric_difference(&old.0)
           .iter()
-          .for_each(|layer| layers_manager.add(layer));
+          .for_each(|layer| layers_manager.add(layer, 1));
       }
     }
     commands.entity(entity).insert(Old(layers.clone()));

@@ -6,15 +6,16 @@ use crate::{RenderLayerManager, RenderLayersManagerPlugin};
 pub mod on_add;
 pub mod on_remove;
 pub mod on_update;
+pub mod pick;
 
 #[rstest]
-fn init_value(app: App) {
-  let manager = app.world().resource::<RenderLayerManager>();
+fn init_value(empty_app: App) {
+  let manager = empty_app.world().resource::<RenderLayerManager>();
   assert_eq!(manager.free_layer, 1);
 }
 
 #[fixture]
-pub fn app() -> App {
+pub fn empty_app() -> App {
   let mut app = App::new();
   app.add_plugins(RenderLayersManagerPlugin);
   app
