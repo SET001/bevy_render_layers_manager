@@ -20,7 +20,7 @@ You can also use `.pick` method that will return free layer and mark it as used.
 
 ```rust
 use bevy::prelude::*;
-use bevy_rander_layer_manager::*;
+use bevy_render_layers_manager::*;
 
 fn main() {
   let mut app = App::new();

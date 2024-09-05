@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rander_layer_manager::*;
+use bevy_render_layers_manager::*;
 
 fn main() {
   let mut app = App::new();
