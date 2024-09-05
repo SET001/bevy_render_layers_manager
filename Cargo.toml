@@ -1,5 +1,5 @@
 [package]
-name = "bevy_rander_layer_manager"
+name = "bevy_rander_layers_manager"
 version = "0.1.0"
 edition = "2021"
 authors = ["SET001 <settydark@gmail.com>"]
