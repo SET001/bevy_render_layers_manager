@@ -6,9 +6,28 @@ A [Bevy](https://github.com/bevyengine/bevy) plugin to manage [RenderLayers](htt
 
 This plugin tracks usage of [RenderLayers](https://docs.rs/bevy/latest/bevy/render/view/struct.RenderLayers.html) in app and provide method to get first free layer for your needs.
 
-## Usage
+## Usage?
 
-This plugin provide `RenderLayerManager` resource with `.get` and `.pick` methods to find out first free render layer in app.
+Add `RenderLayersManagerPlugin` in your app. This plugin adds `RenderLayerManager` resource with `.get` method to get first free layer.
+
+## Example
+
+```rust
+use bevy::prelude::*;
+use bevy_rander_layer_manager::*;
+
+fn main() {
+  let mut app = App::new();
+  app
+    .add_plugins(RenderLayersManagerPlugin)
+    .add_systems(Startup, startup);
+  app.run();
+}
+
+fn startup(layers_manager: Res<RenderLayerManager>) {
+  println!("Current free layer is: {}", layers_manager.get());
+}
+```
 
 ## Bevy Compatibility
 
